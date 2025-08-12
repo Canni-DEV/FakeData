@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generador de Datos de Prueba</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <meta name="color-scheme" content="dark light">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+      <span>Generador de Datos de Prueba</span>
+    </div>
+    <div class="actions">
+      <button id="btn-reset" class="ghost" title="Borrar datos locales">Reset</button>
+      <a class="ghost" href="https://pages.github.com" target="_blank" rel="noopener">Publicar en GH Pages</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card intro">
+      <h1>Datos de prueba rápidos y válidos</h1>
+      <p>Usá este generador para crear un <strong>alias de sesión</strong> legible, un <strong>email de prueba</strong>, un <strong>CUIT válido</strong> y un <strong>GLN</strong> con dígito verificador. Todo se valida y podés copiar con un clic.</p>
+      <div class="chips">
+        <span class="chip">100% estático</span>
+        <span class="chip">Dark mode</span>
+        <span class="chip">Validadores incluidos</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="card-head">
+          <h2>Alias de sesión</h2>
+          <button id="regen-alias" class="primary small">Regenerar</button>
+        </div>
+        <p class="hint">Formato humano: <code>palabra.palabra.palabra</code>. Se guarda en tu navegador.</p>
+        <div class="field">
+          <label>Alias</label>
+          <div class="control">
+            <input id="alias" readonly />
+            <button class="copy" data-target="alias" title="Copiar">Copiar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email de prueba</label>
+          <div class="control">
+            <input id="email" readonly />
+            <button class="copy" data-target="email" title="Copiar">Copiar</button>
+          </div>
+          <div class="toggle-row">
+            <label class="switch">
+              <input type="checkbox" id="use-gmail">
+              <span class="slider"></span>
+            </label>
+            <span>Usar Gmail con <code>+test</code></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>CUIT (válido)</h2>
+          <button id="regen-cuit" class="primary small">Regenerar</button>
+        </div>
+        <p class="hint">Calculado con módulo 11 y pesos estándar <code>[5,4,3,2,7,6,5,4,3,2]</code>.</p>
+        <div class="field">
+          <label>CUIT</label>
+          <div class="control">
+            <input id="cuit" readonly />
+            <button class="copy" data-target="cuit" title="Copiar">Copiar</button>
+          </div>
+          <div id="cuit-status" class="status"></div>
+        </div>
+        <details class="details">
+          <summary>¿Cómo se valida?</summary>
+          <p>Se multiplica cada dígito por los pesos y se calcula el resto módulo 11. El dígito verificador es <code>11 - (suma % 11)</code> (11 → 0, 10 → 9).</p>
+        </details>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>GLN (GS1)</h2>
+          <button id="regen-gln" class="primary small">Regenerar</button>
+        </div>
+        <p class="hint">13 dígitos. Check digit EAN-13: posiciones pares x3.</p>
+        <div class="field">
+          <label>GLN</label>
+          <div class="control">
+            <input id="gln" readonly />
+            <button class="copy" data-target="gln" title="Copiar">Copiar</button>
+          </div>
+          <div id="gln-status" class="status"></div>
+        </div>
+        <details class="details">
+          <summary>¿Cómo se valida?</summary>
+          <p>Se suman los impares y los pares*3, módulo 10. Dígito verificador <code>(10 - (suma % 10)) % 10</code>.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="card roadmap">
+      <h2>Próximos generadores útiles</h2>
+      <ul>
+        <li>GTIN-13 / GTIN-14 (GS1)</li>
+        <li>SSCC (18 dígitos, GS1)</li>
+        <li>UUID v4 y ULID</li>
+        <li>Códigos de barras SVG (EAN/ITF)</li>
+        <li>Nombres y direcciones ficticias</li>
+        <li>Rangos de fechas y montos</li>
+        <li>Números de pedido con prefijo</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>Hecho con ❤️ para pruebas rápidas — 2025.</span>
+    <button id="btn-export" class="ghost">Exportar JSON</button>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
