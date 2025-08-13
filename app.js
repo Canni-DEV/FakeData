@@ -20,6 +20,17 @@ function setStatus(id, ok, okMsg, badMsg) {
   el.textContent = ok ? `✅ ${okMsg}` : `❌ ${badMsg}`;
 }
 
+function exportCSV(obj){
+  const headers = Object.keys(obj);
+  const row = headers.map(k => '"'+String(obj[k]).replace(/"/g,'""')+'"');
+  const csv = headers.join(',') + '\n' + row.join(',');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'session.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ========= Alias & Email =========
 const ADJECTIVES = ["roca","noble","soberbio","claro","bravo","pleno","pardo","rápido","sereno","vivo","etéreo","granito","ámbar","cobalto","púrpura","dorado","plata","oculto","crudo","ornato","franco","recto","astro","árido","lunar","óptimo","rústico","silente","rútilo","tímido","férreo","magno","íntegro","sólido","tenaz","laurel","fresco","sabio","fibra","solar","nuevo","nítido","verde","azul","negro","blanco","ocre","seco","grave","manso","tibio","plano","largo","ancho","alto","bajo","suave","duro","limpio","pardo","casto","fiel","diestro","torre","cauto","recto","firme","valle","pampa","andino","litoral","selvático","marino","urbano","río","nube","trueno","brisa","llama","cumbre","bosque","norte","sur","este","oeste","pluma","eco","arcano","clavel","rosa","lirio","árbol","lluvia","naciente","viejo","joven","sabio","raro","clásico","moderno","ágil","ácido","bélico","básico","cóncavo","convexo","óptico","épico","ínfimo","máximo","místico","prístino"];
 const NOUNS = ["paragua","castor","tundra","faro","nicho","quimera","plataforma","brújula","fogón","farallón","bastión","talle","bóveda","brote","cuenco","dársena","estuario","fragua","góndola","horno","isla","jardín","kilómetro","lago","margen","nodo","óvalo","pilar","quicio","ribera","sendero","tajo","umbra","válvula","yunque","zaguán","arroyito","barranca","caverna","duna","estepa","fresno","glaciar","hondonada","iglesia","jaula","kiosco","lanza","meandro","nave","órbita","pampa","querencia","rancho","serrana","tambo","urna","vértice","yapeyú","zorzal","puente","balcón","cantera","delta","estación","frontera","galpón","humedal","ingenio","juncal","laguna","monte","naciente","orilla","puerto","quebrada","reserva","salina","terrazas","upland","vereda","yacare","zigurat"];
@@ -123,6 +134,47 @@ function validateCuit(value) {
   // Pesos y cálculo ya existentes
   const arr = body10.map(Number); // 10 dígitos
   return computeCuitDV10(arr) === dv;
+}
+
+// ========= DNI =========
+function computeDniDV8(digs){
+  const w = [3,2,7,6,5,4,3,2];
+  const arr = String(digs).padStart(8,'0').split('').map(Number);
+  const sum = arr.reduce((a,d,i)=>a+d*w[i],0);
+  const mod = sum % 11; const dv = 11 - mod;
+  if (dv === 11) return 0; if (dv === 10) return 9; return dv;
+}
+function generateDNI(){
+  let body=''; for(let i=0;i<8;i++) body += Math.floor(Math.random()*10);
+  return body + computeDniDV8(body);
+}
+function validateDNI(v){
+  const s = String(v).replace(/\D/g,'');
+  if (s.length!==9) return false;
+  const body = s.slice(0,8); const cd = Number(s.slice(8));
+  return computeDniDV8(body) === cd;
+}
+
+// ========= CBU =========
+function computeCBUDigit(digs, weights){
+  const sum = digs.reduce((a,d,i)=>a + d*weights[i], 0);
+  return (10 - (sum % 10)) % 10;
+}
+function generateCBU(){
+  let bank=''; for(let i=0;i<7;i++) bank += Math.floor(Math.random()*10);
+  const d1 = computeCBUDigit(bank.split('').map(Number), [7,1,3,9,7,1,3]);
+  let acct=''; for(let i=0;i<13;i++) acct += Math.floor(Math.random()*10);
+  const d2 = computeCBUDigit(acct.split('').map(Number), [3,9,7,1,3,9,7,1,3,9,7,1,3]);
+  return bank + d1 + acct + d2;
+}
+function validateCBU(v){
+  const s = String(v).replace(/\D/g,'');
+  if (s.length!==22) return false;
+  const bank = s.slice(0,7).split('').map(Number); const d1 = Number(s[7]);
+  const acct = s.slice(8,21).split('').map(Number); const d2 = Number(s[21]);
+  const ok1 = computeCBUDigit(bank, [7,1,3,9,7,1,3]) === d1;
+  const ok2 = computeCBUDigit(acct, [3,9,7,1,3,9,7,1,3,9,7,1,3]) === d2;
+  return ok1 && ok2;
 }
 
 // ========= UUID v4 / ULID =========
@@ -284,6 +336,9 @@ const CITIES  = [
   "Pergamino","Junín","Olavarría","Azul","Tandil","Venado Tuerto","Reconquista","Campana","Zárate","San Nicolás","Balcarce","Casilda"
 ];
 
+const AREA_CODES = ["11","221","223","261","341","351","362","370","379"];
+const CURRENCIES = ["ARS","USD","EUR","GBP","BRL"];
+
 
 function titleCaseWords(alias){ return alias.split('.').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join(' '); }
 function genCompanyNameFromAlias(alias){
@@ -306,6 +361,12 @@ function randomBetween(min, max){ return Math.random()*(max-min)+min; }
 function pad(n){ return String(n).padStart(2,'0'); }
 function yyyymmdd(d){ return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`; }
 
+function generatePhone(areaCodes = AREA_CODES){
+  const area = pick(areaCodes);
+  const num = Math.floor(1000000 + Math.random()*9000000).toString();
+  return `+54${area}${num}`;
+}
+
 // ========= Estado =========
 let state = {
   alias: '',
@@ -321,13 +382,16 @@ let state = {
   cuit: '',
   uuidv4: '',
   ulid: '',
+  dni: '',
+  cbu: '',
   fakeCompany: '',
   fakePerson: '',
   fakeAddress: '',
   dateFrom: '',
   dateTo: '',
   amountOut: '',
-  orderOut: ''
+  orderOut: '',
+  phone: ''
 };
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
@@ -379,6 +443,12 @@ function renderAll(){
   $('ulid').value = state.ulid;
   setStatus('ulid-status', validateULID(state.ulid), 'ULID válido', 'ULID inválido');
 
+  $('dni').value = state.dni;
+  setStatus('dni-status', validateDNI(state.dni), 'DNI válido', 'DNI inválido');
+
+  $('cbu').value = state.cbu;
+  setStatus('cbu-status', validateCBU(state.cbu), 'CBU válido', 'CBU inválido');
+
   $('fake-company').value = state.fakeCompany;
   $('fake-person').value = state.fakePerson;
   $('fake-address').value = state.fakeAddress;
@@ -388,6 +458,9 @@ function renderAll(){
 
   $('amount-out').value = state.amountOut || '';
   $('order-out').value = state.orderOut || '';
+
+  $('phone').value = state.phone || '';
+  setStatus('phone-status', !!state.phone, 'Generado', '');
 
   // Mostrar/ocultar config de email
   $('email-config').classList.toggle('hidden', !$('custom-email').checked);
@@ -408,11 +481,17 @@ function regenGeneral(){
   state.cuit = generateCuitWithPrefix(state.cuitPrefix);
   state.uuidv4 = generateUUIDv4();
   state.ulid = generateULID();
+  state.dni = generateDNI();
+  state.cbu = generateCBU();
 }
 function regenFake(){
   state.fakeCompany = genCompanyNameFromAlias(state.alias);
   state.fakePerson = genPerson();
   state.fakeAddress = genAddress();
+}
+
+function regenPhone(){
+  state.phone = generatePhone();
 }
 
 function renderBarcodes(){
@@ -428,8 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (s) state = Object.assign(state, s);
   if (!state.alias) state.alias = generateAlias();
   if (!state.gln) regenGS1();
-  if (!state.cuit || !state.uuidv4 || !state.ulid) regenGeneral();
+  if (!state.cuit || !state.uuidv4 || !state.ulid || !state.dni || !state.cbu) regenGeneral();
   if (!state.fakeCompany) regenFake();
+  if (!state.phone) regenPhone();
 
   renderAll();
 
@@ -463,6 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('regen-gs1').addEventListener('click', () => { regenGS1(); save(); renderAll(); });
   $('regen-general').addEventListener('click', () => { regenGeneral(); save(); renderAll(); });
   $('regen-fake').addEventListener('click', () => { regenFake(); save(); renderAll(); });
+  $('regen-phone').addEventListener('click', () => { regenPhone(); save(); renderAll(); });
 
   // Validaciones al editar manualmente
   $('gln').addEventListener('input', () => { state.gln = $('gln').value; setStatus('gln-status', validateGLN(state.gln), 'GLN válido', 'GLN inválido'); save(); });
@@ -473,6 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('cuit').addEventListener('input', () => { state.cuit = $('cuit').value; setStatus('cuit-status', validateCuit(state.cuit), 'CUIT válido', 'CUIT inválido'); save(); });
   $('uuidv4').addEventListener('input', () => { state.uuidv4 = $('uuidv4').value; setStatus('uuidv4-status', validateUUIDv4(state.uuidv4), 'UUID v4 válido', 'UUID v4 inválido'); save(); });
   $('ulid').addEventListener('input', () => { state.ulid = $('ulid').value; setStatus('ulid-status', validateULID(state.ulid), 'ULID válido', 'ULID inválido'); save(); });
+  $('dni').addEventListener('input', () => { state.dni = $('dni').value; setStatus('dni-status', validateDNI(state.dni), 'DNI válido', 'DNI inválido'); save(); });
+  $('cbu').addEventListener('input', () => { state.cbu = $('cbu').value; setStatus('cbu-status', validateCBU(state.cbu), 'CBU válido', 'CBU inválido'); save(); });
 
   // Barcodes
   $('render-barcodes').addEventListener('click', () => renderBarcodes());
@@ -553,6 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
     a.href = url; a.download = 'session.json'; a.click();
     URL.revokeObjectURL(url);
   });
+  $('btn-export-csv').addEventListener('click', () => exportCSV(state));
 
   // Reset (si tenés un botón con ese id en el header/footer)
   const resetBtn = $('btn-reset');
