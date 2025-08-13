@@ -162,6 +162,24 @@
           </div>
           <div id="ulid-status" class="status"></div>
         </div>
+
+        <div class="field">
+          <label>DNI</label>
+          <div class="control">
+            <input id="dni" title="DNI argentino con dígito verificador."/>
+            <button class="copy" data-target="dni">Copiar</button>
+          </div>
+          <div id="dni-status" class="status"></div>
+        </div>
+
+        <div class="field">
+          <label>CBU</label>
+          <div class="control">
+            <input id="cbu" title="CBU bancario argentino de 22 dígitos."/>
+            <button class="copy" data-target="cbu">Copiar</button>
+          </div>
+          <div id="cbu-status" class="status"></div>
+        </div>
       </div>
     </section>
 
@@ -237,6 +255,9 @@
             <select id="currency" title="Moneda a utilizar para el monto generado.">
               <option value="ARS">ARS</option>
               <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="BRL">BRL</option>
             </select>
             <input id="amount-min" type="number" placeholder="Mín" value="1000" title="Monto mínimo permitido para la generación aleatoria.">
             <input id="amount-max" type="number" placeholder="Máx" value="50000"  title="Monto máximo permitido para la generación aleatoria.">
@@ -270,12 +291,28 @@
           <div id="order-status" class="status"></div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Número telefónico</h2>
+          <div class="head-actions"><button id="regen-phone" class="primary small">Regenerar</button></div>
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <div class="control">
+            <input id="phone" readonly title="Número telefónico aleatorio."/>
+            <button class="copy" data-target="phone">Copiar</button>
+          </div>
+          <div id="phone-status" class="status"></div>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="app-footer">
     <span>Hecho con 🤖 — 2025</span>
     <button id="btn-export" class="ghost">Exportar JSON</button>
+    <button id="btn-export-csv" class="ghost">Exportar CSV</button>
   </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
