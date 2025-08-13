@@ -367,6 +367,17 @@ function generatePhone(areaCodes = AREA_CODES){
   return `+54${area}${num}`;
 }
 
+function generateFromPattern(expr){
+  let out = '';
+  for (const ch of expr){
+    if (ch === 'A') out += String.fromCharCode(65 + Math.floor(Math.random()*26));
+    else if (ch === 'a') out += String.fromCharCode(97 + Math.floor(Math.random()*26));
+    else if (ch === '9') out += Math.floor(Math.random()*10);
+    else out += ch;
+  }
+  return out;
+}
+
 // ========= Estado =========
 let state = {
   alias: '',
@@ -391,7 +402,8 @@ let state = {
   dateTo: '',
   amountOut: '',
   orderOut: '',
-  phone: ''
+  phone: '',
+  patternOut: ''
 };
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
@@ -458,6 +470,9 @@ function renderAll(){
 
   $('amount-out').value = state.amountOut || '';
   $('order-out').value = state.orderOut || '';
+
+  $('pattern-out').value = state.patternOut || '';
+  setStatus('pattern-status', !!state.patternOut, 'Generado', '');
 
   $('phone').value = state.phone || '';
   setStatus('phone-status', !!state.phone, 'Generado', '');
@@ -625,6 +640,15 @@ document.addEventListener('DOMContentLoaded', () => {
     state.orderOut = `${pref}-${stamp}-${rnd}`;
     $('order-out').value = state.orderOut;
     setStatus('order-status', true, 'Generado', '');
+    save();
+  });
+
+  // Patrón
+  $('gen-pattern').addEventListener('click', () => {
+    const expr = $('pattern-exp').value || '';
+    state.patternOut = generateFromPattern(expr);
+    $('pattern-out').value = state.patternOut;
+    setStatus('pattern-status', true, 'Generado', '');
     save();
   });
 

@@ -294,6 +294,27 @@
 
       <div class="card">
         <div class="card-head">
+          <h2>Generación por patrón</h2>
+        </div>
+        <div class="field">
+          <label>Expresión</label>
+          <div class="control">
+            <input id="pattern-exp" placeholder="AAA-999" title="Patrón con A=letra, a=letra minúscula y 9=dígito" value="AAA-999"/>
+            <button id="gen-pattern" class="primary small">Generar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Resultado</label>
+          <div class="control">
+            <input id="pattern-out" readonly title="Cadena generada según el patrón indicado."/>
+            <button class="copy" data-target="pattern-out">Copiar</button>
+          </div>
+          <div id="pattern-status" class="status"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
           <h2>Número telefónico</h2>
           <div class="head-actions"><button id="regen-phone" class="primary small">Regenerar</button></div>
         </div>
