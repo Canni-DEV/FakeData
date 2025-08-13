@@ -10,115 +10,271 @@
 <body>
   <header class="app-header">
     <div class="brand">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.88L18.18 22 12 18.77 5.82 22 7 14.15l-5-4.88 6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.2"/>
-      </svg>
       <span>Generador de Datos de Prueba</span>
     </div>
     <div class="actions">
       <button id="btn-reset" class="ghost" title="Borrar datos locales">Reset</button>
-      <a class="ghost" href="https://pages.github.com" target="_blank" rel="noopener">Publicar en GH Pages</a>
     </div>
   </header>
 
   <main class="container">
-    <section class="card intro">
-      <h1>Datos de prueba rápidos y válidos</h1>
-      <p>Usá este generador para crear un <strong>alias de sesión</strong> legible, un <strong>email de prueba</strong>, un <strong>CUIT válido</strong> y un <strong>GLN</strong> con dígito verificador. Todo se valida y podés copiar con un clic.</p>
-      <div class="chips">
-        <span class="chip">100% estático</span>
-        <span class="chip">Dark mode</span>
-        <span class="chip">Validadores incluidos</span>
-      </div>
-    </section>
-
     <section class="grid">
+      <!-- Alias + Email -->
       <div class="card">
         <div class="card-head">
-          <h2>Alias de sesión</h2>
-          <button id="regen-alias" class="primary small">Regenerar</button>
+          <h2>Alias de sesión & Email</h2>
+          <div class="head-actions">
+            <button id="regen-alias" class="primary small">Regenerar alias</button>
+          </div>
         </div>
-        <p class="hint">Formato humano: <code>palabra.palabra.palabra</code>. Se guarda en tu navegador.</p>
+
         <div class="field">
           <label>Alias</label>
           <div class="control">
-            <input id="alias" readonly />
+            <input id="alias" title="Alias aleatorio de sesión. Puede modificarse manualmente."/>
             <button class="copy" data-target="alias" title="Copiar">Copiar</button>
           </div>
         </div>
+
+        <div class="toggle-row">
+          <label class="switch">
+            <input type="checkbox" id="custom-email">
+            <span class="slider"></span>
+          </label>
+          <span>Personalizar email</span>
+        </div>
+
         <div class="field">
-          <label>Email de prueba</label>
+          <label>Email</label>
           <div class="control">
             <input id="email" readonly />
             <button class="copy" data-target="email" title="Copiar">Copiar</button>
           </div>
-          <div class="toggle-row">
-            <label class="switch">
-              <input type="checkbox" id="use-gmail">
-              <span class="slider"></span>
-            </label>
-            <span>Usar Gmail con <code>+test</code></span>
+        </div>
+
+        <div id="email-config" class="email-config hidden">
+          <div class="field">
+            <label>Dominio</label>
+            <div class="control">
+              <input id="email-domain" placeholder="gmail.com" value="gmail.com" title="Dominio de email. Ejemplo: gmail.com, outlook.com"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Casilla base (EmailTest)</label>
+            <div class="control">
+              <input id="email-base" placeholder="test" value="test" title="Parte inicial del email. Se combinará con el dominio."/>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Identificadores GS1 (validador/generador) -->
       <div class="card">
         <div class="card-head">
-          <h2>CUIT (válido)</h2>
-          <button id="regen-cuit" class="primary small">Regenerar</button>
-        </div>
-        <p class="hint">Calculado con módulo 11 y pesos estándar <code>[5,4,3,2,7,6,5,4,3,2]</code>.</p>
-        <div class="field">
-          <label>CUIT</label>
-          <div class="control">
-            <input id="cuit" readonly />
-            <button class="copy" data-target="cuit" title="Copiar">Copiar</button>
+          <h2>GS1 · Identificadores</h2>
+          <div class="head-actions">
+            <button id="regen-gs1" class="primary small">Regenerar todos</button>
           </div>
-          <div id="cuit-status" class="status"></div>
         </div>
-        <details class="details">
-          <summary>¿Cómo se valida?</summary>
-          <p>Se multiplica cada dígito por los pesos y se calcula el resto módulo 11. El dígito verificador es <code>11 - (suma % 11)</code> (11 → 0, 10 → 9).</p>
-        </details>
-      </div>
 
-      <div class="card">
-        <div class="card-head">
-          <h2>GLN (GS1)</h2>
-          <button id="regen-gln" class="primary small">Regenerar</button>
-        </div>
-        <p class="hint">13 dígitos. Check digit EAN-13: posiciones pares x3.</p>
         <div class="field">
-          <label>GLN</label>
+          <label>GLN (13 dígitos)</label>
           <div class="control">
-            <input id="gln" readonly />
-            <button class="copy" data-target="gln" title="Copiar">Copiar</button>
+            <input id="gln" title="GLN: 13 dígitos numéricos. Identificador de localización global."/>
+            <button class="copy" data-target="gln">Copiar</button>
           </div>
           <div id="gln-status" class="status"></div>
         </div>
-        <details class="details">
-          <summary>¿Cómo se valida?</summary>
-          <p>Se suman los impares y los pares*3, módulo 10. Dígito verificador <code>(10 - (suma % 10)) % 10</code>.</p>
-        </details>
+
+        <div class="field">
+          <label>GTIN-13 (EAN-13)</label>
+          <div class="control">
+            <input id="gtin13" title="GTIN-13 (EAN-13): 13 dígitos. Código de producto estándar."/>
+            <button class="copy" data-target="gtin13">Copiar</button>
+          </div>
+          <div id="gtin13-status" class="status"></div>
+        </div>
+
+        <div class="field">
+          <label>GTIN-14 (ITF-14)</label>
+          <div class="control">
+            <input id="gtin14" title="GTIN-14 (ITF-14): 14 dígitos. Identificador de embalaje."/>
+            <button class="copy" data-target="gtin14">Copiar</button>
+          </div>
+          <div id="gtin14-status" class="status"></div>
+        </div>
+
+        <div class="field">
+          <label>SSCC (18 dígitos)</label>
+          <div class="control">
+            <input id="sscc" title="SSCC: 18 dígitos. Código de contenedor logístico."/>
+            <button class="copy" data-target="sscc">Copiar</button>
+          </div>
+          <div id="sscc-status" class="status"></div>
+        </div>
+      </div>
+
+      <!-- Identificadores generales -->
+      <div class="card">
+        <div class="card-head">
+          <h2>Identificadores generales</h2>
+          <div class="head-actions">
+            <button id="regen-general" class="primary small">Regenerar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tipo de CUIT (prefijo)</label>
+          <div class="control">
+            <select id="cuit-prefix" title="Prefijo del CUIT según tipo de persona o entidad.">
+              <option value="30">30 — Persona jurídica (empresa)</option>
+              <option value="20">20 — Persona física (masculino)</option>
+              <option value="23">23 — Persona física (uso alterno)</option>
+              <option value="24">24 — Persona física (extranjera)</option>
+              <option value="27">27 — Persona física (femenino)</option>
+              <option value="33">33 — Jurídica extranjera s/ personería</option>
+              <option value="34">34 — Otros (coops, consorcios, etc.)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>CUIT</label>
+          <div class="control">
+            <input id="cuit" title="CUIT válido argentino. El prefijo depende de la selección anterior."/>
+            <button class="copy" data-target="cuit">Copiar</button>
+          </div>
+          <div id="cuit-status" class="status"></div>
+        </div>
+
+        <div class="field">
+          <label>UUID v4</label>
+          <div class="control">
+            <input id="uuidv4" title="UUID versión 4: identificador universal único."/>
+            <button class="copy" data-target="uuidv4">Copiar</button>
+          </div>
+          <div id="uuidv4-status" class="status"></div>
+        </div>
+
+        <div class="field">
+          <label>ULID</label>
+          <div class="control">
+            <input id="ulid" title="ULID: identificador único lexicográficamente ordenable."/>
+            <button class="copy" data-target="ulid">Copiar</button>
+          </div>
+          <div id="ulid-status" class="status"></div>
+        </div>
       </div>
     </section>
 
-    <section class="card roadmap">
-      <h2>Próximos generadores útiles</h2>
-      <ul>
-        <li>GTIN-13 / GTIN-14 (GS1)</li>
-        <li>SSCC (18 dígitos, GS1)</li>
-        <li>UUID v4 y ULID</li>
-        <li>Códigos de barras SVG (EAN/ITF)</li>
-        <li>Nombres y direcciones ficticias</li>
-        <li>Rangos de fechas y montos</li>
-        <li>Números de pedido con prefijo</li>
-      </ul>
+    <!-- Códigos de barras SVG -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Códigos de barras (SVG)</h2>
+        <div class="head-actions">
+          <button id="render-barcodes" class="primary small">Render desde arriba</button>
+        </div>
+      </div>
+      <br>
+      <div class="barcode-grid">
+        <div class="barcode-card">
+          <h3>EAN-13 (GTIN-13)</h3>
+          <div id="ean13-svg" class="barcode"></div>
+        </div>
+        <div class="barcode-card">
+          <h3>ITF-14 (GTIN-14)</h3>
+          <div id="itf14-svg" class="barcode"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Datos ficticios -->
+    <section class="grid">
+      <div class="card">
+        <div class="card-head">
+          <h2>Datos ficticios</h2>
+          <div class="head-actions"><button id="regen-fake" class="primary small">Regenerar</button></div>
+        </div>
+        <div class="field">
+          <label>Nombre de empresa</label>
+          <div class="control">
+            <input id="fake-company" readonly title="Nombre de empresa ficticia generado aleatoriamente."/>
+            <button class="copy" data-target="fake-company">Copiar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Persona (Nombre y Apellido)</label>
+          <div class="control">
+            <input id="fake-person" readonly title="Nombre y apellido ficticio generado aleatoriamente."/>
+            <button class="copy" data-target="fake-person">Copiar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Dirección</label>
+          <div class="control">
+            <input id="fake-address" readonly title="Dirección ficticia generada aleatoriamente."/>
+            <button class="copy" data-target="fake-address">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Rangos & Montos</h2>
+        </div>
+        <div class="field">
+          <label>Rango de fechas</label>
+          <div class="control">
+            <input type="date" id="date-from" title="Fecha inicial del rango.">
+            <input type="date" id="date-to" title="Fecha final del rango.">
+            <button id="preset-today" class="small">Hoy</button>
+            <button id="preset-week" class="small">Semana</button>
+            <button id="preset-month" class="small">Mes</button>
+          </div>
+          <div id="date-status" class="status"></div>
+        </div>
+        <div class="field">
+          <label>Monto (AR$ / USD)</label>
+          <div class="control">
+            <select id="currency" title="Moneda a utilizar para el monto generado.">
+              <option value="ARS">ARS</option>
+              <option value="USD">USD</option>
+            </select>
+            <input id="amount-min" type="number" placeholder="Mín" value="1000" title="Monto mínimo permitido para la generación aleatoria.">
+            <input id="amount-max" type="number" placeholder="Máx" value="50000"  title="Monto máximo permitido para la generación aleatoria.">
+            <button id="gen-amount" class="primary small">Generar</button>
+          </div>
+          <div class="control">
+            <input id="amount-out" readonly title="Monto generado aleatoriamente en el rango indicado."/>
+            <button class="copy" data-target="amount-out">Copiar</button>
+          </div>
+          <div id="amount-status" class="status"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Número de pedido</h2>
+        </div>
+        <div class="field">
+          <label>Prefijo</label>
+          <div class="control">
+            <input id="order-prefix" placeholder="ORD" value="ORD"  title="Prefijo para el número de pedido generado."/>
+            <button id="gen-order" class="primary small">Generar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Pedido generado</label>
+          <div class="control">
+            <input id="order-out" readonly title="Número de pedido generado con el prefijo indicado."/>
+            <button class="copy" data-target="order-out">Copiar</button>
+          </div>
+          <div id="order-status" class="status"></div>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="app-footer">
-    <span>Hecho con ❤️ para pruebas rápidas — 2025.</span>
+    <span>Hecho con 🤖 — 2025</span>
     <button id="btn-export" class="ghost">Exportar JSON</button>
   </footer>
 
